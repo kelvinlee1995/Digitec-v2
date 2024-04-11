@@ -236,35 +236,53 @@ def main():
     # Load the cookies pkl file and store them in a session object
     session = get_cookies(validate=True)
 
-    assert session != None, "The cookies are not valid. Please run the cookiesGrab.py."
+    if not session:
+        st.error("The cookies are not valid. Please run the cookiesGrab.py.")
+        return
 
-    date_start = "16.05.2023"
-    date_end = "09.05.2024"
+    start = st.date_input("Start")
+    date_start = f"{start.day}.{start.month}.{start.year}"
+    end = st.date_input("End")
+    date_end = f"{end.day}.{end.month}.{end.year}"
+
+    if not end > start:
+        st.info("Set the start and end dates of the Zielbestand")
+        return
+
+    file_path = st.text_input("File Path", "data.csv")
+    skiprows = st.slider("How many rows to skip", min_value=0, max_value=100, value=2)
 
     #load excel
-    df = pd.read_csv("data.csv", skiprows=2)
+    df = pd.read_csv(file_path, skiprows=skiprows)
+    st.write(df)
 
     bestand = {'Basel': 0, 'Bern': 0, 'Dietikon': 0, 'Genf': 0, 'Kriens': 0, 'Lausanne': 0, 'St. Gallen': 0, 'Winterthur': 0, 'Zürich': 0}
 
-    stop_at = 200
+    stop_at = st.number_input("Stop at", min_value=0, value=200)
 
-    for index, row in df.iterrows():
-        product = str(int(row["Product Id"]))
-        zielbestand = int(row["Stück pro Filiale"])
-        bemerkungen = row['Bemerkungen']
+    necesarry_rows = ("Product Id", "Stück pro Filiale", "Bemerkungen")
+    if not all(row in df.columns for row in necesarry_rows):
+        st.error(f"Could not find the following rows in the file: {necesarry_rows}")
+        return
 
-        update = updateZielbestand(session, product, date_start, date_end, zielbestand)
+    if st.button("Run"):
+        for index, row in df.iterrows():
+            product = str(int(row["Product Id"]))
+            zielbestand = int(row["Stück pro Filiale"])
+            bemerkungen = row['Bemerkungen']
 
-        for city, value in update.items():
-            if city in bestand:
-                bestand[city] += value
+            update = updateZielbestand(session, product, date_start, date_end, zielbestand)
 
-        if index % 10 == 0:
-            print(bestand)
+            for city, value in update.items():
+                if city in bestand:
+                    bestand[city] += value
 
-        max_stock = max(bestand.values())
+            if index % 10 == 0:
+                print(bestand)
 
-        print(f"{round(max_stock/stop_at*100)} %")
+            max_stock = max(bestand.values())
+
+            print(f"{round(max_stock/stop_at*100)} %")
 
 if __name__ == "__main__":
     main()
