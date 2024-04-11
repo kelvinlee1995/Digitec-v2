@@ -15,4 +15,6 @@ pip install -r requirements.txt
 To run the script you need to run the following command:
 ```
 python main.py
+
+hello
 ```
