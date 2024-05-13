@@ -249,10 +249,10 @@ def main():
     start_time = pd.Timestamp.now()
 
     # Load the data from the csv file
-    df = pd.read_csv("data/data.csv", skiprows=2)
+    df = pd.read_csv("data/data.csv")
 
     # Count the number of updates and limit the number of updates per run to <200>
-    update_count = 0
+    update_count = 1
     size_of_update = 200
     if len(df) < size_of_update:
         size_of_update = len(df)
@@ -262,16 +262,29 @@ def main():
 
     # Iterate over the rows of the csv file and update the Zielbestand
     for index, row in df.iterrows():
-        product = str(int(row["Product Id"]))
-        zielbestand = int(row["Stück pro Filiale"])
-        bemerkungen = row['Bemerkungen']
+        try:
+            product = str(int(row["Product Id"]))
+            zielbestand = int(row["Stück pro Filiale"])
+            bemerkungen = row['Bemerkungen']
+        except ValueError:
+            print(f"Product ID or Zielbestand is not a number in row {index}. Skipping this row.\n")
+            update_count += 1
+            continue
 
         # If the count of updates is less than the size of the update, update the Zielbestand
-        if update_count <= size_of_update:
+        if update_count < size_of_update+1:
             update = updateZielbestand(session, product, date_start, date_end, zielbestand)
             update_count += 1
+            # Use pandas lib to delete the line in the csv file when update is done
+            df.drop(df[df['Product Id'] == int(product)].index, inplace=True)
+            df.to_csv("data/data_processing.csv", index=False)
+            if update_count == size_of_update+1:
+                os.remove("data/data.csv")
+                os.rename("data/data_processing.csv", "data/data.csv")
+                print("Update limit reached\n")
+                break
         else:
-            print("Update limit reached")
+            print("Update limit reached\n")
             break
 
         # Update the bestand dictionary
@@ -282,16 +295,13 @@ def main():
         # Find the maximum stock
         max_stock = max(bestand.values())
 
-        # Print the progress in percentage and the current index of the update with the current time
-        print(f"{round(max_stock/size_of_update*100)}% (", index, "/", size_of_update, ")\n")
-
-        # Remove the line in csv after the update of the product
-        #df.drop(index, inplace=True)
+        # Print the progress in percentage and the current index with the index of the update out of the size of the update
+        print(f"Progress: {index+1/size_of_update*100:.2f}% ({index+1}/{size_of_update})\n")
 
         # Print the progress every 10 products
         if index % 10 == 0:
             print(bestand, "\n")
-            # Calculate the time left base
+            # Calculate the time left based on the current index and the size of the update
             if index != 0:
                 time_left = (pd.Timestamp.now() - start_time) / index * (size_of_update - index)
                 print(f"Time left: {time_left.seconds//3600}H {time_left.seconds//60}m\n")
