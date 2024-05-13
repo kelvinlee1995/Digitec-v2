@@ -271,6 +271,7 @@ def main():
             update = updateZielbestand(session, product, date_start, date_end, zielbestand)
             update_count += 1
         else:
+            print("Update limit reached")
             break
 
         # Update the bestand dictionary
@@ -289,11 +290,11 @@ def main():
 
         # Print the progress every 10 products
         if index % 10 == 0:
-            print(bestand)
+            print(bestand, "\n")
             # Calculate the time left base
             if index != 0:
                 time_left = (pd.Timestamp.now() - start_time) / index * (size_of_update - index)
-                print(f"Time left: {time_left.seconds//3600}H {time_left.seconds//60}m")
+                print(f"Time left: {time_left.seconds//3600}H {time_left.seconds//60}m\n")
 
 if __name__ == "__main__":
     main()
