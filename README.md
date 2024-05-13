@@ -15,6 +15,11 @@ You can install them with the following command:
 ```
 pip install -r requirement/requirements.txt
 ```
+
+Use this commande if you have right issues
+```
+pip install --user -r requirement/requirements.txt
+```
 ## Usage
 To run the script you need to run the following command :
 
