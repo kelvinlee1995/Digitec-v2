@@ -50,7 +50,6 @@ def getLagerStand(session: requests.Session, productID: str, soup=None) -> Union
         find_product_url = "https://test-erp.digitecgalaxus.ch/de/Product/Availability/"
         r = session.get(find_product_url + productID)
         soup = BeautifulSoup(r.text, 'html.parser')
-        print("Product : ", productID)
     else:
         print("Soup given")
 
@@ -150,7 +149,6 @@ def addZielbestand(session: requests.Session, productID: str, from_date: str, to
         find_product_url = "https://test-erp.digitecgalaxus.ch/de/Product/Availability/"
         r = session.get(find_product_url + productID)
         soup = BeautifulSoup(r.text, 'html.parser')
-        print("Produit : ", productID)
     else:
         print("addZielbestand started")
 
@@ -284,7 +282,7 @@ def main():
         max_stock = max(bestand.values())
 
         # Print the progress in percentage and the current index of the update with the current time
-        print(f"{round(max_stock/size_of_update*100)}% (", index, "/", size_of_update, ") [", pd.Timestamp.now().strftime("%H:%M:%S"), "]\n")
+        print(f"{round(max_stock/size_of_update*100)}% (", index, "/", size_of_update, ")\n")
 
         # Remove the line in csv after the update of the product
         #df.drop(index, inplace=True)
@@ -295,7 +293,7 @@ def main():
             # Calculate the time left base
             if index != 0:
                 time_left = (pd.Timestamp.now() - start_time) / index * (size_of_update - index)
-                print("Time left: ", time_left)
+                print(f"Time left: {time_left.seconds//3600}H {time_left.seconds//60}m")
 
 if __name__ == "__main__":
     main()
