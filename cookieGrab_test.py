@@ -40,8 +40,8 @@ if not os.path.exists('data'):
 
 # Store the cookie as a pickle file
 
-file_name = 'cookies_aleks.pkl'
-with open(f"../data/{file_name}", 'wb') as file:
+file_name = 'cookies_test.pkl'
+with open(f"data/{file_name}", 'wb') as file:
     pickle.dump(cookies, file)
 
 # Close the browser after the cookies are stored
