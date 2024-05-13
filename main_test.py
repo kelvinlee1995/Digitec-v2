@@ -150,7 +150,7 @@ def addZielbestand(session: requests.Session, productID: str, from_date: str, to
         r = session.get(find_product_url + productID)
         soup = BeautifulSoup(r.text, 'html.parser')
     else:
-        print("addZielbestand started")
+        print("Add rules started")
 
     # Values encoded
     values_encoded ={
