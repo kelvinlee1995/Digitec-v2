@@ -8,7 +8,7 @@ import os
 import pickle
 
 # Create a Service object
-s=Service("requirements/chromedriver.exe")
+s=Service("requirement/chromedriver.exe")
 
 # Pass the Service object instead of executable_path
 browser = webdriver.Chrome(service=s)
@@ -25,6 +25,7 @@ try:
     WebDriverWait(browser, 60).until(EC.presence_of_element_located((By.XPATH, '//*[@id="controllertitle"]')))
 except TimeoutException:
     print("User did not authentificate in time!")
+
 
 print("User authentificated!")
 
