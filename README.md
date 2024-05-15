@@ -50,5 +50,6 @@ To set the limit of product the script will update go to line 270 to update the 
 
 - Save it in **CSV UTF-8 (Comma delimited)**
 - Rename the file in **"data.csv"**
+- Save it in data directory
 
 ![image](https://github.com/kelvinlee1995/Digitec-v2/assets/55844277/2d38a1a2-d0d5-4a49-abf9-a5aa29e41a19)
