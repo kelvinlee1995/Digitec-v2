@@ -1,3 +1,4 @@
+import time
 import requests
 import pickle
 import os
@@ -96,10 +97,14 @@ def deleateZielbestand(session: requests.Session, productID: str, soup=None) -> 
         print("Delete rules started")
 
     # Find out how many rules there are
-    rule_table = soup.select_one("#ProductSiteTargetInventoryOverrideTable5 > form > table")
-    tbody_elements = rule_table.find_all("tbody")[0]
-    tr_elements = tbody_elements.find_all("tr")
-    hrefs = [tr_element.find_all("a")[0]["href"] for tr_element in tr_elements]
+    try:
+        rule_table = soup.select_one("#ProductSiteTargetInventoryOverrideTable5 > form > table")
+        tbody_elements = rule_table.find_all("tbody")[0]
+        tr_elements = tbody_elements.find_all("tr")
+        hrefs = [tr_element.find_all("a")[0]["href"] for tr_element in tr_elements]
+    except Exception as e:
+        print("No rules found in the HTML document.Product skipped", e)
+        hrefs = []
 
     currentURL = "https://test-erp.digitecgalaxus.ch/de/Product/Availability/" + productID
 
@@ -244,16 +249,19 @@ def main():
     assert session != None, "The cookies are not valid. Please run the cookiesGrab_test.py."
 
     # Define the date range for the new rules and the start time of the script
-    date_start = "29.04.2024"
-    date_end = "14.04.2025"
+    date_start = "15.05.2024"
+    date_end = "05.05.2025"
     start_time = pd.Timestamp.now()
 
-    # Load the data from the csv file
-    df = pd.read_csv("data/data.csv")
+    # Load the data from the csv file in ISO-8859-1 encoding
+    #df = pd.read_csv("data/data.csv", sep = ";", encoding = "ISO-8859-1")
+    # Load the data from the csv file in UTF-8 encoding
+    df = pd.read_csv("data/data.csv", sep = ";", encoding = "utf-8")
 
+    ## CHANGE THE VALUE OF  SIZE_OF_UPDATE TO THE LIMIT YOU WOULD LIKE TO HAVE
     # Count the number of updates and limit the number of updates per run to <200>
-    update_count = 1
-    size_of_update = 200
+    update_count = 0
+    size_of_update = 450
     if len(df) < size_of_update:
         size_of_update = len(df)
 
@@ -272,18 +280,16 @@ def main():
             continue
 
         # If the count of updates is less than the size of the update, update the Zielbestand
-        if update_count < size_of_update+1:
+        if index < size_of_update:
             update = updateZielbestand(session, product, date_start, date_end, zielbestand)
             update_count += 1
             # Use pandas lib to delete the line in the csv file when update is done
             df.drop(df[df['Product Id'] == int(product)].index, inplace=True)
-            df.to_csv("data/data_processing.csv", index=False)
-            if update_count == size_of_update+1:
-                os.remove("data/data.csv")
-                os.rename("data/data_processing.csv", "data/data.csv")
-                print("Update limit reached\n")
-                break
-        else:
+            #df.to_csv("data/data_processing.csv", index=False, encoding = "ISO-8859-1", sep = ";")
+            df.to_csv("data/data_processing.csv", index=False, encoding = "utf-8", sep = ";")
+        if index == size_of_update-1:
+            os.remove("data/data.csv")
+            os.rename("data/data_processing.csv", "data/data.csv")
             print("Update limit reached\n")
             break
 
@@ -296,16 +302,14 @@ def main():
         max_stock = max(bestand.values())
 
         # Print the progress in percentage and the current index with the index of the update out of the size of the update
-        print(f"Progress: {index+1/size_of_update*100:.2f}% ({index+1}/{size_of_update})\n")
+        print(f"{(index+1)/size_of_update*100:.2f}% done ({index+1}/{size_of_update})\n")
 
         # Print the progress every 10 products
-        if index % 10 == 0:
+        if index % 10 == 0 and index != 0:
             print(bestand, "\n")
             # Calculate the time left based on the current index and the size of the update
-            if index != 0:
-                time_left = (pd.Timestamp.now() - start_time) / index * (size_of_update - index)
-                print(f"Time left: {time_left.seconds//3600}H {time_left.seconds//60}m\n")
+            time_left = (pd.Timestamp.now() - start_time) / index * (size_of_update - index)
+            print(f"Time left: {time_left.seconds//3600}H {time_left.seconds//60}m\n")
 
 if __name__ == "__main__":
     main()
-
