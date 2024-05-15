@@ -39,7 +39,7 @@ if not os.path.exists('data'):
 
 # Store the cookie as a pickle file
 
-file_name = 'cookies_test.pkl'
+file_name = 'cookies.pkl'
 with open(f"data/{file_name}", 'wb') as file:
     pickle.dump(cookies, file)
 
