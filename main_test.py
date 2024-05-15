@@ -171,53 +171,59 @@ def addZielbestand(session: requests.Session, productID: str, from_date: str, to
         'Zürich': 246938
     }
 
-    # Find out the product mandant, necessary for the request
-    mandant = soup.select_one("#ProductSiteTargetInventoryOverrideTable5 > div > ul > li:nth-child(2) > a")["href"].split("/")[-1]
+    try:
+        # Find out the product mandant, necessary for the request
+        mandant = soup.select_one("#ProductSiteTargetInventoryOverrideTable5 > div > ul > li:nth-child(2) > a")["href"].split("/")[-1]
 
-    # The url on which the post request is made
-    if mandant is not None:
-        create_url = "https://test-erp.digitecgalaxus.ch/ProductSiteTargetInventoryOverride/TableNew/" + mandant
-    else:
-        print("No mandant found in the HTML document.")
-        create_url = None
-    currentURL = "https://test-erp.digitecgalaxus.ch/de/Product/Availability/" + productID
-
-    # Make a post request for every filiale
-    num_requests = 0
-    for filiale in filialen:
-
-        params = {
-                'ajaxerplist': '2'
-        }
-
-        data = {
-            "ProductSiteTargetInventoryOverride.SiteId": values_encoded[filiale],
-            "ProductSiteTargetInventoryOverride.Quantity": product_quantity,
-            "ProductSiteTargetInventoryOverride.ValidFrom": from_date,
-            "ProductSiteTargetInventoryOverride.ValidTo" : to_date,
-            "save" : "",
-        }
-
-        headers = {
-            "Accept": "application/json, text/javascript, */*; q=0.01",
-            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-            "Referer": currentURL,
-            "Sec-Fetch-Dest": "empty",
-            "Sec-Fetch-Mode": "cors",
-            "Sec-Fetch-Site": "same-origin",
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36",
-            "X-Requested-With": "XMLHttpRequest"
-        }
-
-        # Make the post request and check if it was successful
-        r = session.post(create_url, params=params, data=data, headers=headers)
-        if r.status_code == 200:
-            num_requests += 1
+        # The url on which the post request is made
+        if mandant is not None:
+            create_url = "https://test-erp.digitecgalaxus.ch/ProductSiteTargetInventoryOverride/TableNew/" + mandant
         else:
-            print(f"Error: {r.status_code}")
-    
-    print(f"Added {num_requests} rules")
-    return soup
+            print("No mandant found in the HTML document.")
+            create_url = None
+
+
+        currentURL = "https://test-erp.digitecgalaxus.ch/de/Product/Availability/" + productID
+
+        # Make a post request for every filiale
+        num_requests = 0
+        for filiale in filialen:
+
+            params = {
+                    'ajaxerplist': '2'
+            }
+
+            data = {
+                "ProductSiteTargetInventoryOverride.SiteId": values_encoded[filiale],
+                "ProductSiteTargetInventoryOverride.Quantity": product_quantity,
+                "ProductSiteTargetInventoryOverride.ValidFrom": from_date,
+                "ProductSiteTargetInventoryOverride.ValidTo" : to_date,
+                "save" : "",
+            }
+
+            headers = {
+                "Accept": "application/json, text/javascript, */*; q=0.01",
+                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                "Referer": currentURL,
+                "Sec-Fetch-Dest": "empty",
+                "Sec-Fetch-Mode": "cors",
+                "Sec-Fetch-Site": "same-origin",
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36",
+                "X-Requested-With": "XMLHttpRequest"
+            }
+
+            # Make the post request and check if it was successful
+            r = session.post(create_url, params=params, data=data, headers=headers)
+            if r.status_code == 200:
+                num_requests += 1
+            else:
+                print(f"Error: {r.status_code}")
+        
+        print(f"Added {num_requests} rules")
+        return soup
+    except Exception as e:
+        print("An error occured while adding the rules. Product skipped", e)
+        return soup
 
 # Higher level function to update the Target stock of a product, returns a dictionary of how many products will be transfered to each filiale in the filialen (except Wohlen)
 def updateZielbestand(session: requests.Session, productID: str, date_start: str, date_end:str, quantity: int, filialen: List[str] = ["Basel", "Bern", "Dietikon", "Genf", "Kriens", "Lausanne", "St. Gallen", "Winterthur", "Zürich"]) -> Dict[str, int]:
