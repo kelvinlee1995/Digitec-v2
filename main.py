@@ -315,6 +315,9 @@ def main():
             # Calculate the time left based on the current index and the size of the update
             time_left = (pd.Timestamp.now() - start_time) / index * (size_of_update - index)
             print(f"Time left: {time_left.seconds//3600}H {time_left.seconds//60}m\n")
-
+            # Print the bestand when index reaches the size of the update
+            if index == size_of_update-1:
+                print(bestand, "\n")
+                
 if __name__ == "__main__":
     main()
