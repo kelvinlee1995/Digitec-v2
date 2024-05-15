@@ -38,6 +38,11 @@ python erp/cookieGrab.py
 python erp/cookieGrab.py
 ```
 
+- To set the limit of product the script will update go to line 270 to update the value
+
+![image](https://github.com/kelvinlee1995/Digitec-v2/assets/55844277/b04d7e2a-ef4d-463f-9917-1d3ce9f997fe)
+
+
 ## Convert XLSX to CSV
 - Open your Excel file and export it in CSV
 
