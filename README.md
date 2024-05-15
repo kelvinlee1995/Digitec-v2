@@ -8,6 +8,7 @@ The script reads the target stock from an excel file and updates the target stoc
 Software needed :
 - Visual Studio Code
 - Python 3
+- Google Chrome
 
 To run the script you need to install the following packages:
 - selenium == 4.9.1
