@@ -8,7 +8,7 @@ import os
 import pickle
 
 # Create a Service object
-s=Service("chromedriver.exe")
+s=Service("requirement/chromedriver.exe")
 
 # Pass the Service object instead of executable_path
 browser = webdriver.Chrome(service=s)
