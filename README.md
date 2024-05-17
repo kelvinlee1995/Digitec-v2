@@ -30,13 +30,13 @@ To run the script you need to run the following command :
 
 - First you, you need to give your access (cookies) to the script
 ```
-python erp/cookieGrab.py
+python cookieGrab.py
 ```
 
 - When your access are stored in your session, then you run the script
 
 ```
-python erp/cookieGrab.py
+python main.py
 ```
 ---
 To set the limit of product the script will update go to line 270 to update the value
