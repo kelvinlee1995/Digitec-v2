@@ -2,3 +2,4 @@ selenium==4.9.1
 pandas
 bs4==0.0.1
 requests==2.30.0
+psutil==2023.4.0

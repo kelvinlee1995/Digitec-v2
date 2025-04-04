@@ -15,15 +15,16 @@ To run the script you need to install the following packages:
 - pandas == 2.0.1
 - bs4 == 0.0.1
 - requests == 2.30.0
+- psutil==2023.4.0
 
 You can install them with the following command in the terminal:
 ```
-pip install -r requirement/requirements.txt
+pip3 install -r requirement/requirements.txt
 ```
 
 Use this commande if you have right issues
 ```
-pip install --user -r requirement/requirements.txt
+pip3 install --user -r requirement/requirements.txt
 ```
 ## Usage
 To run the script you need to run the following command :

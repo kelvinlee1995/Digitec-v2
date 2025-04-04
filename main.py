@@ -224,8 +224,8 @@ def addZielbestand(session: requests.Session, productID: str, from_date: str, to
         print("An error occured while adding the rules. Product skipped", e)
         return soup
 
-# Higher level function to update the Target stock of a product, returns a dictionary of how many products will be transfered to each filiale in the filialen (except Wohlen)
-def updateZielbestand(session: requests.Session, productID: str, date_start: str, date_end:str, quantity: int, filialen: List[str] = ["Basel", "Bern", "Dietikon", "Genf", "Kriens", "Lausanne", "St. Gallen", "Winterthur", "Zürich"]) -> Dict[str, int]:
+# Higher level function to update the Target stock of a product, returns a dictionary of how many products will be transfered to each filiale in the filialen (except Wohlen and Winterthur)
+def updateZielbestand(session: requests.Session, productID: str, date_start: str, date_end:str, quantity: int, filialen: List[str] = ["Basel", "Bern", "Dietikon", "Genf", "Kriens", "Lausanne", "St. Gallen", "Zürich"]) -> Dict[str, int]:
     
     # Print the productID we are currently working on
     print("Product : ", productID)
@@ -253,13 +253,11 @@ def main():
     session = get_cookies(validate=True)
     assert session != None, "The cookies are not valid. Please run the cookieGrab.py."
 
-    # Define the date range for the new rules and the start time of the script
+    # Define the date range for the new rules and the start time and end time of the rules
     date_start = "15.05.2024"
     date_end = "05.05.2025"
     start_time = pd.Timestamp.now()
 
-    # Load the data from the csv file in ISO-8859-1 encoding
-    #df = pd.read_csv("data/data.csv", sep = ";", encoding = "ISO-8859-1")
     # Load the data from the csv file in UTF-8 encoding
     df = pd.read_csv("data/data.csv", sep = ";", encoding = "utf-8")
 
@@ -271,7 +269,7 @@ def main():
         size_of_update = len(df)
 
     # Initialize the bestand dictionary
-    bestand = {'Basel': 0, 'Bern': 0, 'Dietikon': 0, 'Genf': 0, 'Kriens': 0, 'Lausanne': 0, 'St. Gallen': 0, 'Winterthur': 0, 'Zürich': 0}
+    bestand = {'Basel': 0, 'Bern': 0, 'Dietikon': 0, 'Genf': 0, 'Kriens': 0, 'Lausanne': 0, 'St. Gallen': 0, 'Zürich': 0}
 
     # Iterate over the rows of the csv file and update the Zielbestand
     for index, row in df.iterrows():
@@ -290,7 +288,6 @@ def main():
             update_count += 1
             # Use pandas lib to delete the line in the csv file when update is done
             df.drop(df[df['Product Id'] == int(product)].index, inplace=True)
-            #df.to_csv("data/data_processing.csv", index=False, encoding = "ISO-8859-1", sep = ";")
             df.to_csv("data/data_processing.csv", index=False, encoding = "utf-8", sep = ";")
         if index == size_of_update-1:
             os.remove("data/data.csv")
