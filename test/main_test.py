@@ -78,9 +78,9 @@ def getLagerStand(session: requests.Session, productID: str, soup=None) -> Union
         else:
             lagerstand[td_element[0]] += int(td_element[1])
 
-    # Some of the filialen have different names in the Lagerstand than in the Zielbestand
+        # Some of the filialen have different names in the Lagerstand than in the Zielbestand
     if "StGallen" in lagerstand:
-        lagerstand = change_key_name(lagerstand, "StGallen", "St. Gallen")
+        lagerstand = change_key_name(lagerstand, "StGallen", "St Gallen")
     if "ZÃ¼rich" in lagerstand:
         lagerstand = change_key_name(lagerstand, "ZÃ¼rich", "Zürich")
 
